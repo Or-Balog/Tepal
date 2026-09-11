@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Keep the existing user's preferences and macOS app identity across the rename. -->
+    <key>CFBundleIdentifier</key>
+    <string>local.or.Moonmoss.Experimental</string>
+    <key>CFBundleName</key>
+    <string>Tepal</string>
+    <key>CFBundleDisplayName</key>
+    <string>Tepal</string>
+    <key>CFBundleExecutable</key>
+    <string>Tepal</string>
+    <key>CFBundleIconFile</key>
+    <string>Tepal</string>
+    <key>CFBundleVersion</key>
+    <string>2</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.1</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>26.0</string>
+    <key>NSCalendarsFullAccessUsageDescription</key>
+    <string>Tepal reads upcoming event titles and times to remind you locally. It never changes your calendar.</string>
+</dict>
+</plist>

@@ -1,0 +1,22 @@
+.build/
+dist/
+.swiftpm/
+.superpowers/
+.worktrees/
+*.xcuserstate
+
+# Local publication candidates and development evidence
+publication/
+outputs/
+work/
+docs/superpowers/
+.DS_Store
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.p12
+*.p8
+*.key
+*.mobileprovision

@@ -77,13 +77,16 @@ public struct PomodoroEngine: Sendable {
     }
 
     public mutating func send(_ command: PomodoroCommand, at now: Date) -> PomodoroSnapshot {
-        if let meeting = meetingFocusEvent, meeting.start.addingTimeInterval(-120) <= now {
-            finishMeetingFocus(completed: pausedRemaining == nil)
-            return snapshot(at: now)
-        }
-        if let targetEnd, targetEnd <= now {
-            advance(completingFocus: phase == .focus, at: now)
-            return snapshot(at: now)
+        // Elapsed time is settled before the command runs. A command aimed at the
+        // phase that just ended is stale — the transition it asked for has already
+        // happened, and applying it again would skip or pause the phase the user
+        // just earned — so it is dropped once the phase has settled.
+        //
+        // Reset is the exception: it clears the timer whatever phase is showing, so
+        // dropping it strands a timer that expired unobserved, typically because the
+        // Mac slept through the deadline.
+        if settleElapsedTime(at: now) {
+            guard case .reset = command else { return snapshot(at: now) }
         }
 
         switch command {
@@ -145,6 +148,20 @@ public struct PomodoroEngine: Sendable {
         }
 
         return snapshot(at: now)
+    }
+
+    /// Applies the transition that elapsed time alone has already earned, and
+    /// reports whether the phase moved.
+    private mutating func settleElapsedTime(at now: Date) -> Bool {
+        if let meeting = meetingFocusEvent, meeting.start.addingTimeInterval(-120) <= now {
+            finishMeetingFocus(completed: pausedRemaining == nil)
+            return true
+        }
+        if let targetEnd, targetEnd <= now {
+            advance(completingFocus: phase == .focus, at: now)
+            return true
+        }
+        return false
     }
 
     private mutating func finishMeetingFocus(completed: Bool) {

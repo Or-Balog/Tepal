@@ -305,6 +305,36 @@ struct PomodoroEngineTests {
         #expect(snapshot.isPaused)
     }
 
+    @Test func resetAfterAnUnobservedDeadlineStillReturnsTheEngineToIdle() {
+        // Break caught: a Reset arriving after an expired, not-yet-ticked deadline
+        // only settles the phase and leaves the timer running.
+        var settings = AppSettings.defaults
+        settings.autoStartNextPhase = true
+        var engine = PomodoroEngine(settings: settings)
+        let start = Date(timeIntervalSinceReferenceDate: 50_000)
+        _ = engine.send(.startFocus, at: start)
+
+        let snapshot = engine.send(.reset, at: start.addingTimeInterval(settings.focusDuration + 5))
+
+        #expect(snapshot.phase == .idle)
+        #expect(snapshot.targetEnd == nil)
+        #expect(snapshot.completedFocusCount == 0)
+        #expect(!snapshot.isPaused)
+    }
+
+    @Test func resetAfterAMeetingFocusDeadlineClearsTheCompletedCount() {
+        // Break caught: a Reset at the meeting handover is swallowed by the handover.
+        let now = Date(timeIntervalSinceReferenceDate: 70_000)
+        var engine = PomodoroEngine()
+        _ = engine.send(.startFocusUntilMeeting(upcomingMeeting(at: now.addingTimeInterval(900))), at: now)
+
+        let snapshot = engine.send(.reset, at: now.addingTimeInterval(790))
+
+        #expect(snapshot.phase == .idle)
+        #expect(snapshot.completedFocusCount == 0)
+        #expect(snapshot.meetingFocusEvent == nil)
+    }
+
     @Test func resetReturnsTheEngineToIdle() {
         // Break caught: reset retains an active deadline or previously completed focus count.
         var engine = PomodoroEngine()

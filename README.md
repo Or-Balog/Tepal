@@ -42,14 +42,18 @@ next event on compatible Macs. It is off by default.
 **Keep what you've finished.** Completed focus sessions grow your companion and
 unlock palettes. Pausing or closing the app preserves timer recovery.
 
-## Try it from source
+## Install
 
-> [!NOTE]
-> This is an early source release. The packaged app is ad-hoc signed;
-> a notarized download is not available yet.
+[**Download the latest release →**](https://github.com/Or-Balog/Tepal/releases/latest)
 
-Requires an **Apple silicon Mac on macOS 26+** with **Swift 6.2+** and matching
-Xcode or Command Line Tools.
+Unzip it and move `Tepal.app` to your Applications folder. The app is signed with
+a Developer ID and notarized by Apple, so it opens without a security warning.
+
+Requires an **Apple silicon Mac on macOS 26 or later**.
+
+## Or build it from source
+
+Requires **Swift 6.2+** and matching Xcode or Command Line Tools.
 
 ```bash
 git clone https://github.com/Or-Balog/Tepal.git

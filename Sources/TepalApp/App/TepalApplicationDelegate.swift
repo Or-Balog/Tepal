@@ -106,6 +106,9 @@ final class TepalApplicationDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Put the motion sensor's reporting interval back if a previous run ended
+        // abruptly while double-knock was listening.
+        SensorReportIntervalGuard.restorePendingChange()
         NSApp.dockTile.contentView = tileInstallation.contentView
         let historyStoreController = HistoryStoreController()
         let controlPanelController = controlPanelController

@@ -89,48 +89,55 @@ final class SPUProbe {
 
 // Optional reversible trial: only the existing interval property is changed.
 // Reporting/power properties that cannot be read back are intentionally untouched.
+// The value to restore is recorded on disk before the change, so a crash or a
+// forced quit no longer strands the driver at the raised rate.
+// See SensorReportIntervalGuard.
 final class ReportingIntervalTrial {
     private var driver: io_service_t = 0
-    private var previous: CFTypeRef?
+    private var didChangeInterval = false
 
     func begin() throws {
-        var iterator: io_iterator_t = 0
-        let status = IOServiceGetMatchingServices(kIOMainPortDefault,
-            IOServiceMatching("AppleSPUHIDDriver"), &iterator)
-        guard status == KERN_SUCCESS else { throw ProbeError.registry(status) }
-        defer { IOObjectRelease(iterator) }
-        while true {
-            let service = IOIteratorNext(iterator)
-            if service == 0 { break }
-            func number(_ key: String) -> Int? {
-                IORegistryEntryCreateCFProperty(service, key as CFString,
-                    kCFAllocatorDefault, 0)?.takeRetainedValue() as? Int
-            }
-            if number("PrimaryUsagePage") == 0xFF00 && number("PrimaryUsage") == 3 {
-                driver = service
-                break
-            }
-            IOObjectRelease(service)
-        }
-        guard driver != 0,
-              let value = IORegistryEntryCreateCFProperty(driver, "ReportInterval" as CFString,
-                kCFAllocatorDefault, 0)?.takeRetainedValue() else { throw ProbeError.unavailable }
-        let result = IORegistryEntrySetCFProperty(driver, "ReportInterval" as CFString, NSNumber(value: 1000))
+        // Repair anything an earlier run left behind before taking a new reading,
+        // otherwise the raised rate would be recorded as the value to restore.
+        SensorReportIntervalGuard.restorePendingChange()
 
-        guard result == kIOReturnSuccess else { throw ProbeError.registry(result) }
-        previous = value
+        guard let service = SensorReportIntervalGuard.copyDriverService() else {
+            throw ProbeError.unavailable
+        }
+        driver = service
+
+        // Never change a value that cannot be read back and put right again.
+        guard let previous = IORegistryEntryCreateCFProperty(
+            driver,
+            SensorReportIntervalGuard.propertyKey as CFString,
+            kCFAllocatorDefault,
+            0
+        )?.takeRetainedValue() as? Int else { throw ProbeError.unavailable }
+
+        _ = SensorReportIntervalGuard.installTerminationHandlers
+        SensorReportIntervalGuard.recordPendingChange(previousInterval: previous)
+
+        let result = IORegistryEntrySetCFProperty(
+            driver,
+            SensorReportIntervalGuard.propertyKey as CFString,
+            NSNumber(value: 1000)
+        )
+        guard result == kIOReturnSuccess else {
+            SensorReportIntervalGuard.clearPendingChange()
+            throw ProbeError.registry(result)
+        }
+        didChangeInterval = true
     }
 
     func restore() {
         if driver != 0 {
-            if let previous {
-                let result = IORegistryEntrySetCFProperty(driver, "ReportInterval" as CFString, previous)
-                if result != kIOReturnSuccess { fputs("Sensor interval restoration failed\n", stderr) }
-            }
             IOObjectRelease(driver)
             driver = 0
-            previous = nil
         }
+        guard didChangeInterval else { return }
+        didChangeInterval = false
+        SensorReportIntervalGuard.restorePendingChange()
     }
+
     deinit { restore() }
 }

@@ -64,6 +64,7 @@ Sources/TepalMac/Dock/TepalTileView.swift
 Sources/TepalMac/Knock/KnockSensorConnection.swift
 Sources/TepalMac/Knock/MotionSensorWorker.swift
 Sources/TepalMac/Knock/SPUMotionSensor.swift
+Sources/TepalMac/Knock/SensorReportIntervalGuard.swift
 Sources/TepalMac/Persistence/HistoryStore.swift
 Sources/TepalMac/Persistence/SettingsStore.swift
 Sources/TepalMac/Pet/TepalGeometry.swift

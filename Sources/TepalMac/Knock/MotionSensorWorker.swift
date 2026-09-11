@@ -36,7 +36,7 @@ final class MotionSensorWorker: @unchecked Sendable {
     private var loop: CFRunLoop?
     private let makeSource: @Sendable () -> any MotionSampleSource
     private let emit: @Sendable (MotionSensorEvent) -> Void
-    private let log = Logger(subsystem: "local.or.Tepal", category: "KnockSensor")
+    private let log = Logger(subsystem: "com.or-balog.tepal", category: "KnockSensor")
 
     init(makeSource: @escaping @Sendable () -> any MotionSampleSource = { SPUMotionSource() },
          onEvent: @escaping @Sendable (MotionSensorEvent) -> Void) {

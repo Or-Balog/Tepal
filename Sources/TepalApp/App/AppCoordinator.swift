@@ -133,7 +133,7 @@ public final class AppCoordinator {
 
     #if DEBUG
     private let demoMeeting: CalendarEventSummary?
-    private static let demoLogger = Logger(subsystem: "local.or.Tepal", category: "DemoMeeting")
+    private static let demoLogger = Logger(subsystem: "com.or-balog.tepal", category: "DemoMeeting")
     #endif
 
     public init(

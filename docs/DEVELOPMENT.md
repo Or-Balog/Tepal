@@ -46,7 +46,9 @@ App Sandbox blocked the driver update required to receive motion samples during 
 
 ## Upgrade compatibility
 
-Tepal keeps the former experimental app's internal bundle identifier, `local.or.Moonmoss.Experimental`, to retain its preference domain and app identity. The `dockpet.v1.*` preference keys, serialized `moonmossPalette` key and `DockPetHistory` store name are intentionally unchanged. They are compatibility identifiers, not display names. The old sandboxed build had a separate data container; Tepal does not silently merge those independent histories/settings.
+Tepal uses the bundle identifier `com.or-balog.tepal`, which also names the app's `Logger` subsystems.
+
+The `dockpet.v1.*` preference keys, the serialized `moonmossPalette` key and the `DockPetHistory` store name are compatibility identifiers inside the app's own storage, not display names. Renaming them would discard existing settings and history for no benefit.
 
 Quit an older running copy before launching Tepal. A rebuilt ad-hoc signature can cause macOS to ask for Calendar access again. Check **Launch at login** after moving the app.
 
